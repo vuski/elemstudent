@@ -1,0 +1,89 @@
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('./font/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+  }*
+  
+  
+  {
+    font-family: 'Pretendard-Regular';
+    margin: 0;
+    padding: 0;
+  }
+  
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+#bottomBar {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    background-color: rgba(0,0,0,0.8);
+    z-index: 20;
+}
+@media (max-width: 800px) {
+    #bottomBar {
+        height: 140px;
+    }
+}
+@media (min-width: 801px) {
+    #bottomBar {
+        height: 90px;
+    }
+}
+
+#popupText {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.range-slider {
+    position: absolute;
+    width: calc(90% - 6em);
+    /* height: 60px; */
+    bottom: 10px;
+    left: calc(5% + 6em);
+    align-content: center;
+    z-index: 40;
+}
+
+
+.showText {
+	position: absolute;
+	margin : 5px 0px 5px 0px;
+    bottom: 40px;
+    left : 5%;
+    align-content: center;   
+    z-index: 40;
+}
+
+
+.showDiff {
+	position: absolute;
+	margin : 5px 0px 5px 0px;
+    bottom: 45px;
+    left : 5%;
+    align-content: center;   
+    z-index: 40;
+}
+
+#textCanvas {
+    position: absolute;
+    bottom: 0px;
+    z-index : 30;
+    pointer-events: none;
+}

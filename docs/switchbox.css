@@ -1,0 +1,119 @@
+.example-switchbox {
+	position: relative;
+	display: inline-block;
+	width: 4em; /*너비는 이것을 조정*/
+	height: 1em;
+	padding: .125em;
+	overflow: hidden;
+	box-sizing: content-box;
+	border: 2px solid darkgrey;
+	outline: none;
+	border-radius: .75em;
+	background-color: white;
+	font-size: 1.25em;
+	vertical-align: middle;
+	cursor: pointer;
+	transition: .15s ease-out;
+}
+
+.example-switchbox::before {
+	position: relative;
+	z-index: 2;
+	display: block;
+	width: 1em;
+	height: 1em;
+	border-radius: 50%;
+	background-color: darkgrey;
+	content: '';
+	transition: .15s ease-out;
+}
+.example-switchbox + label {
+	vertical-align: middle;
+}
+.example-switchbox-yes,
+.example-switchbox-no {
+	position: absolute;
+	top: 50%;
+	z-index: 1;
+	transform: translateY(-50%);
+	font-size: .75em;
+	text-transform: uppercase;
+	pointer-events: none;
+	transition: inherit;
+}
+
+.example-switchbox-yes {
+	left: .75em;
+	color: white;
+	font-weight: bold;
+	opacity: 0;
+}
+.example-switchbox-no {
+	right: .75em;
+	color: darkgrey;
+	opacity: 1;
+}
+.example-switchbox:hover,
+.example-switchbox:focus {
+	border-color: var(--theme); /* You probably need to change this! */
+	box-shadow: 0 0 .25em var(--theme); /* You probably need to change this too! */
+}
+.example-switchbox:hover::before,
+.example-switchbox:focus::before {
+	background-color: var(--theme); /* You probably need to change this! */
+}
+
+.example-switchbox.is-pressed {
+	border-color: var(--theme); /* You probably need to change this! */
+	background-color: var(--theme); /* You probably need to change this too! */
+}
+.example-switchbox.is-pressed .example-switchbox-yes {
+	opacity: 1;
+}
+.example-switchbox.is-pressed .example-switchbox-no {
+	opacity: 0;
+}
+.example-switchbox.is-pressed::before {
+	transform: translateX(3em);/*너비는 이것을 조정*/
+	background-color: white;
+}
+
+.example-switchbox.wide.is-pressed::before {
+	transform: translateX(5em) !important;/*너비는 이것을 조정*/
+	background-color: white;
+}
+
+.example-switchbox.is-pressed:hover,
+.example-switchbox.is-pressed:focus {
+	border-color: rgba(0,0,0,.35);
+}
+.example-switchbox.is-pressed:hover::before,
+.example-switchbox.is-pressed:focus::before {
+	background-color: white;
+}
+
+/* Only for screen readers */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	border: 0;
+	white-space: nowrap;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+}
+
+/* For demo */
+:root {
+	--theme: #055de0;
+}
+#switchbox_showText {
+	position: absolute;
+	margin : 5px 0px 5px 0px;    
+    align-content: center;   
+    z-index : 41;
+}
+
