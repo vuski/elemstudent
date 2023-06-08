@@ -85,19 +85,19 @@ let countFrom = 0;
 let countTo = countMax;
 let filteredCount = 6981;
 let schoolData;
-let showText = false;
-let showDiff = true;
-let normalMode = true;
+let show20082023Count = false;
+let showDiff = false;
+let showLineChart = false;
 let mainMenu = 0;
-const colorPlus = [224, 2, 87];//[199, 10, 83];
-const colorMinus = [12, 187, 207];// [255,120,33];
+const colorPlus = [255, 20, 10]; //[224, 2, 87];//
+const colorMinus =  [255,180,33]; //[12, 187, 207];//
 const colorClosed = [100,100,100];//[120, 60, 15];
 
-const colorPlusLine = [110,1,43];
-const colorMinusLine = [6,90,100];//[12, 187, 207];//[220,60,20];
+const colorPlusLine =  [122, 10, 5]; //[110,1,43];
+const colorMinusLine = [122, 90, 16];//[6,90,100];//[12, 187, 207];//[220,60,20];
 const colorClosedLine = [40,40,40];//[30,15,7];
 
-const plotSize = 1000;
+
 
 
 const nodeMap = new Map();
@@ -207,7 +207,7 @@ const update = () => {
       getLineWidth : 2,
       opacity: 0.4,
       pickable: false,
-      getLineColor: [60, 60, 60],
+      getLineColor: [155, 154, 136],
       //getFillColor: [200, 100, 100],
       visible : true
     }),
@@ -221,7 +221,7 @@ const update = () => {
       getLineWidth : 3,
       opacity: 0.4,
       pickable: false,
-      getLineColor: [30, 30, 30],
+      getLineColor: [155, 154, 136],
       //getFillColor: [200, 100, 100],
       visible : true
     }),
@@ -256,7 +256,7 @@ const update = () => {
         // This tells deck.gl to recalculate radius when `currentYear` changes
         getRadius : [currentZoom]       
       },
-      visible : normalMode&&(mainMenu==0),
+      visible : showLineChart&&(mainMenu==0),
       extensions: [new DataFilterExtension({filterSize: 1})]    
       //getLineColor: [80, 80, 80],
       //getLineWidth: 1
@@ -292,7 +292,7 @@ const update = () => {
         // This tells deck.gl to recalculate radius when `currentYear` changes
         getRadius : [currentZoom]       
       },
-      visible : normalMode&&(mainMenu==0),
+      visible : showLineChart&&(mainMenu==0),
       extensions: [new DataFilterExtension({filterSize: 1})]    
 
     }),
@@ -300,61 +300,57 @@ const update = () => {
   
     new ScatterplotLayer({
       id: 'school',
-      data: schoolData.filter(d=>{
-        return (d.persons==0) || (d.persons - d.persons2008<0);
-      }),
+      data: schoolData,
       
       // Styles
       filled: true,
 
-      radiusMinPixels: 3,
+      radiusMinPixels: 2,
       //sizeMaxPixels: 10,
       radiusScale: 1,
       getPosition: d => [d.x,d.y],
       getRadius: d => {
-        if (d.persons==0) return plotSize;
-        else return (d.persons - d.persons2008>=0)?   0: plotSize;
-      },
-      radiusUnits: 'meters',
+        return 3;
+      },        
+      radiusUnits: 'pixels',
       getFillColor: d => {
         if (d.persons==0) return [...colorClosed, 255];
         return (d.persons - d.persons2008>=0)?   [...colorPlus, 255] : [...colorMinus,255]
       },
-      // Interactive props
-      
-      visible : !normalMode&&(mainMenu==0),
+      // Interactive props      
+      visible : !showLineChart&&(mainMenu==0),
       extensions: [new DataFilterExtension({filterSize: 1})],
       getFilterValue: d => [d.persons],
       filterRange: [[countFrom, countTo]],
     }),
-    new ScatterplotLayer({
-      id: 'school1',
-      data: schoolData.filter(d=>{
-        return (d.persons>0) &&(d.persons - d.persons2008>=0);
-      }),
+    // new ScatterplotLayer({
+    //   id: 'school1',
+    //   data: schoolData.filter(d=>{
+    //     return (d.persons>0) &&(d.persons - d.persons2008>=0);
+    //   }),
       
-      // Styles
-      filled: true,
+    //   // Styles
+    //   filled: true,
 
-      radiusMinPixels: 3,
-      //sizeMaxPixels: 10,
-      radiusScale: 1,
-      getPosition: d => [d.x,d.y],
-      getRadius: d => {
-        if (d.persons==0) return 0;
-        else return (d.persons - d.persons2008>=0)?   plotSize: 0;
-      },
-      radiusUnits: 'meters',
-      getFillColor: d => {      
-        return (d.persons - d.persons2008>=0)?   [...colorPlus, 255] : [...colorMinus,255]
-      },
-      // Interactive props
+    //   radiusMinPixels: 3,
+    //   //sizeMaxPixels: 10,
+    //   radiusScale: 1,
+    //   getPosition: d => [d.x,d.y],
+    //   getRadius: d => {
+    //     if (d.persons==0) return 0;
+    //     else return (d.persons - d.persons2008>=0)?   plotSize: 0;
+    //   },
+    //   radiusUnits: 'meters',
+    //   getFillColor: d => {      
+    //     return (d.persons - d.persons2008>=0)?   [...colorPlus, 255] : [...colorMinus,255]
+    //   },
+    //   // Interactive props
       
-      visible : !normalMode&&(mainMenu==0),
-      extensions: [new DataFilterExtension({filterSize: 1})],
-      getFilterValue: d => [d.persons],
-      filterRange: [[countFrom, countTo]],
-    }),
+    //   visible : !showLineChart&&(mainMenu==0),
+    //   extensions: [new DataFilterExtension({filterSize: 1})],
+    //   getFilterValue: d => [d.persons],
+    //   filterRange: [[countFrom, countTo]],
+    // }),
 
     new ScatterplotLayer({
       id: 'school2008',
@@ -482,12 +478,16 @@ const update = () => {
         // getBackgroundColor: [255, 255, 255, 255],
         // getBorderColor: [0, 0, 0, 255],
         // getBorderWidth: 0,
-        // getColor: [0, 0, 0, 255],
+        getColor:  d => {
+          const alpha = 255;
+          if (d.persons == 0) return [...colorClosedLine, 255];
+          else return (d.persons - d.persons2008>=0)?   [...colorPlusLine, alpha] : [...colorMinusLine,alpha]
+        },
         // getPixelOffset: [0, 0],
         getFilterValue: d => [d.persons],
         filterRange: [[countFrom, countTo]],
         getPosition: d => d.polygon[16],
-        getSize: d=> (currentZoom*currentZoom/100) *  1/Math.pow(d.persons,0.35) * 90,
+        getSize: d=> (currentZoom*currentZoom/100) *  1/Math.pow(500,0.35) * 90,
         getText: d => ""+d.persons,
         getTextAnchor: 'start',
         // lineHeight: 1,
@@ -516,7 +516,7 @@ const update = () => {
          
         },
         extensions: [new DataFilterExtension({filterSize: 1})],
-        visible : normalMode&&showText&&(mainMenu==0)
+        visible : showLineChart&&show20082023Count&&(mainMenu==0)
         // visible: true,
         // wrapLongitude: false,
       }),
@@ -538,12 +538,16 @@ const update = () => {
         // getBackgroundColor: [255, 255, 255, 255],
         // getBorderColor: [0, 0, 0, 255],
         // getBorderWidth: 0,
-        // getColor: [0, 0, 0, 255],
+        getColor:  d => {
+          const alpha = 255;
+          if (d.persons == 0) return [...colorClosedLine, 255];
+          else return (d.persons - d.persons2008>=0)?   [...colorPlusLine, alpha] : [...colorMinusLine,alpha]
+        },
         // getPixelOffset: [0, 0],
         getFilterValue: d => [d.persons],
         filterRange: [[countFrom, countTo]],
         getPosition: d => d.polygon[1],
-        getSize: d=> (currentZoom*currentZoom/100) *  1/Math.pow(d.persons,0.35) * 60,
+        getSize: d=> (currentZoom*currentZoom/100) *  1/Math.pow(500,0.35) * 90,
         getText: d => ""+d.persons2008,
         getTextAnchor: 'end',
         // lineHeight: 1,
@@ -571,7 +575,7 @@ const update = () => {
          
         },
         extensions: [new DataFilterExtension({filterSize: 1})],
-        visible : normalMode&&showText&&(mainMenu==0)
+        visible : showLineChart&&show20082023Count&&(mainMenu==0)
         // visible: true,
         // wrapLongitude: false,
       }),
@@ -646,7 +650,7 @@ const update = () => {
          
         },
         extensions: [new DataFilterExtension({filterSize: 1})],
-        visible : normalMode&&showDiff&&(mainMenu==0)  
+        visible : showLineChart&&showDiff&&(mainMenu==0)  
         // visible: true,
         // wrapLongitude: false,
       }),
@@ -719,7 +723,7 @@ const update = () => {
          
         },
         extensions: [new DataFilterExtension({filterSize: 1})],
-        visible : normalMode&&showDiff &&(mainMenu==0) 
+        visible : showLineChart&&showDiff &&(mainMenu==0) 
         // visible: true,
         // wrapLongitude: false,
       })
@@ -812,6 +816,8 @@ function showInfoBox(info) {
 map.on('zoom', () => {
   textFeature.selectAll(".number").remove();
   currentZoom = map.getZoom();
+  console.log(currentZoom);
+  setVariables(currentZoom);
   update();
 
 });
@@ -819,28 +825,41 @@ map.on('move', () => {
   textFeature.selectAll(".number").remove();
 });
 
+
+function setVariables(currentZoom) {
+
+  if (currentZoom>9) {
+    showLineChart = true;
+  } else {
+    showLineChart = false;
+  }
+
+  if (currentZoom>11.5) {
+    showDiff = true;
+  } else {
+    showDiff = false;
+  }
+
+  if (currentZoom>13.7) {
+    show20082023Count = true;
+  } else {
+    show20082023Count = false;
+  }
+
+}
+
 //document.getElementById("container").onclick = update;
 map.addControl(deckOverlay);
 
 window.addEventListener("keydown", (e) => {
   //console.log(e);
   if (e.key=='1') {
-    normalMode = !normalMode;
+    showLineChart = !showLineChart;
   }
   if (e.key=='2') {
     labelVisibility = !labelVisibility;
-    const lv = labelVisibility? 'visible' : 'none';
-    
-    var layers = map.getStyle().layers;
 
-      for (var i = 0; i < layers.length; i++) {
-          if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
-              // 텍스트 레이블을 담당하는 레이어를 찾았습니다.
-              // 이 레이어를 제거하거나 숨깁니다.
-              map.setLayoutProperty(layers[i].id, 'visibility', lv);
-          }
-      }
-    
+
   }
   if (e.key=='3') {
     mainMenu++;
@@ -899,15 +918,30 @@ window.addEventListener('resize', function() {
   update();
 });
 
-document.querySelector("#switchbox_showText").addEventListener("toggleAfter", event => {
-  showText = window.easyToggleState.isActive(event.target);
+document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", event => {
+  labelVisibility = window.easyToggleState.isActive(event.target);
+  const lv = labelVisibility? 'visible' : 'none';    
+  var layers = map.getStyle().layers;
+
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+            // 텍스트 레이블을 담당하는 레이어를 찾았습니다.
+            // 이 레이어를 제거하거나 숨깁니다.
+            map.setLayoutProperty(layers[i].id, 'visibility', lv);
+        }
+    }
+  
+
   update();
 }, false);
 
-document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", event => {
-  showDiff = window.easyToggleState.isActive(event.target);
+
+document.querySelector("#switchbox_showText").addEventListener("toggleAfter", event => {
+  show20082023Count = window.easyToggleState.isActive(event.target);
   update();
 }, false);
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

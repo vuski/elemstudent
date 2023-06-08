@@ -110,7 +110,9 @@ body {
     left : 50%;
     transform: translate(-50%, 0);
     font-family: 'Pretendard-Regular';
-    font-size : 25px;
+    font-size : 20px;
+    padding-left: 10px;
+    padding-right: 10px;
     /* background-image: radial-gradient( rgb(20, 20, 20), rgb(63, 63, 63)); */
     overflow: hidden;
     border-radius: 15px;
