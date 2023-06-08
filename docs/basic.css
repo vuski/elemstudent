@@ -42,19 +42,20 @@ body {
     position: absolute;
     width: 100%;
     bottom: 0px;
+    height: 120px;
     background-color: rgba(0,0,0,0.8);
     z-index: 20;
 }
-@media (max-width: 800px) {
+/* @media (max-width: 800px) {
     #bottomBar {
-        height: 140px;
+        height: 120px;
     }
 }
 @media (min-width: 801px) {
     #bottomBar {
         height: 90px;
     }
-}
+} */
 
 #popupText {
     position: absolute;
@@ -68,13 +69,14 @@ body {
     position: absolute;
     width: calc(90% - 6em);
     /* height: 60px; */
-    bottom: 10px;
+    bottom: 60px;
     left: calc(5% + 6em);
     align-content: center;
     z-index: 40;
+    overflow: hidden;
 }
 
-
+/* 
 .showText {
 	position: absolute;
 	margin : 5px 0px 5px 0px;
@@ -82,13 +84,13 @@ body {
     left : 5%;
     align-content: center;   
     z-index: 40;
-}
+} */
 
 
 .showDiff {
 	position: absolute;
 	margin : 5px 0px 5px 0px;
-    bottom: 45px;
+    bottom: 53px;
     left : 5%;
     align-content: center;   
     z-index: 40;

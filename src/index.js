@@ -62,8 +62,8 @@ function createMap(containerID) {
 }
 
 function initMap(map) { 
-  //map.dragRotate.disable(); 
-  //map.touchZoomRotate.disableRotation();    
+  map.dragRotate.disable(); 
+  map.touchZoomRotate.disableRotation();    
   map.addControl(new MapboxLanguage({
       defaultLanguage: 'ko'    
     },
@@ -314,8 +314,9 @@ const update = () => {
       },        
       radiusUnits: 'pixels',
       getFillColor: d => {
+        const alpha = 180;
         if (d.persons==0) return [...colorClosed, 255];
-        return (d.persons - d.persons2008>=0)?   [...colorPlus, 255] : [...colorMinus,255]
+        return (d.persons - d.persons2008>=0)?   [...colorPlus, alpha] : [...colorMinus,alpha]
       },
       // Interactive props      
       visible : !showLineChart&&(mainMenu==0),
@@ -739,17 +740,21 @@ const update = () => {
   //console.log(canvas1.width, canvas1.height);
   context1.clearRect(0, 0, canvas1.width, canvas1.height);
 
+  context1.fillStyle = 'white'; // 텍스트의 색상을 빨간색으로 지정
   context1.textBaseline = 'middle';
   context1.textAlign = 'center';
   context1.fillStyle = 'white';
   context1.font = '12px Pretendard-Regular';
-  context1.fillText("데이터 : KESS교육통계서비스 | 필터링 된 학교 수 : "+ filteredCount+"개소 | 2008년 대비 증감에 따라 색상 구분",
-   canvas1.width/2, 35);
-  context1.font = '18px Pretendard-Regular';
-  context1.fillText("2008-2023년 전국 초등학교 학생 수 증감 (폐교/휴교 포함)",
-   canvas1.width/2, 15);
+  context1.fillText("데이터 : KESS교육통계서비스/학교알리미 | 색상 : 2008년 대비 증감",
+   canvas1.width/2, 125);
+  context1.font = '20px Pretendard-Regular';
+  context1.fillText("2008-2023년 전국 초등학교 학생 수 증감",
+   canvas1.width/2, 100);
 
-
+   context1.fillStyle = '#c0c0c0'; // 텍스트의 색상을 빨간색으로 지정
+   context1.font = '12px Pretendard-Regular';   
+   context1.fillText("2023년 학생 수 기준 필터: "+filteredCount+"개소",
+   canvas1.width/2, 55);
 };
 
 
@@ -875,7 +880,7 @@ $rangeTime.ionRangeSlider();
 const sliderInstance = $rangeTime.data("ionRangeSlider");
 
 sliderInstance.update({
-  skin: "big",
+  skin: "round",
   type: "double",
   //grid : true,
   min: 0,
@@ -908,7 +913,7 @@ window.addEventListener('resize', function() {
   const w = window.innerWidth, h = window.innerHeight;
 
   canvas1.width = w;
-  canvas1.height = w<800? 140 : 90;
+  canvas1.height = 140;// w<800? 140 : 90;
   // d3.select("#textCanvas")
   //     .attr("width", w)
   //     .attr("height", 90);  
@@ -936,10 +941,10 @@ document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", e
 }, false);
 
 
-document.querySelector("#switchbox_showText").addEventListener("toggleAfter", event => {
-  show20082023Count = window.easyToggleState.isActive(event.target);
-  update();
-}, false);
+// document.querySelector("#switchbox_showText").addEventListener("toggleAfter", event => {
+//   show20082023Count = window.easyToggleState.isActive(event.target);
+//   update();
+// }, false);
 
 
 
