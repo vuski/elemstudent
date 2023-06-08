@@ -248,10 +248,11 @@ const update = () => {
         showInfoBox(info);
         
       },
-      getFilterValue: d => [d.persons],
-      filterRange: [[countFrom, countTo]],
       pickable: true,
       autoHighlight: true,
+      getFilterValue: d => [d.persons],
+      filterRange: [[countFrom, countTo]],
+
       updateTriggers: {
         // This tells deck.gl to recalculate radius when `currentYear` changes
         getRadius : [currentZoom]       
@@ -312,6 +313,15 @@ const update = () => {
       getRadius: d => {
         return 3;
       },        
+      onHover: (info) => {
+        showInfoBox(info);
+      },
+      onClick: (info) => {
+        showInfoBox(info);
+        
+      },
+      pickable: true,
+      autoHighlight: true,
       radiusUnits: 'pixels',
       getFillColor: d => {
         const alpha = 180;
@@ -371,6 +381,15 @@ const update = () => {
         }
        
       },
+      onHover: (info) => {
+        showInfoBox(info);
+      },
+      onClick: (info) => {
+        showInfoBox(info);
+        
+      },
+      pickable: true,
+      autoHighlight: true,
       radiusUnits: 'meters',
       getFillColor: d => {  
         
@@ -780,12 +799,21 @@ function showInfoBox(info) {
     textFeature.selectAll(".number").remove();
     textFeature.append("rect")
               .attr("class", "number")
-              .attr("x", info.x-250)
-              .attr("y", info.y-145)
-              .attr("width", 500)
-              .attr("height", 125)
+              .attr("x", info.x-200)
+              .attr("y", info.y-175)
+              .attr("width", 400)
+              .attr("height", 155)
               .style("fill", "black")
               .style("opacity", 0.8);
+    textFeature.append("text")
+              .attr("class", "number")
+              .attr("dx", info.x)
+              .attr("dy", info.y-139)
+              .style("fill", "white")
+              .attr("text-anchor", "middle")
+              .style("font-size", 30)
+              .style("opacity", 1)
+              .text(info.object.name);
     textFeature.append("text")
               .attr("class", "number")
               .attr("dx", info.x)
@@ -794,7 +822,7 @@ function showInfoBox(info) {
               .attr("text-anchor", "middle")
               .style("font-size", 30)
               .style("opacity", 1)
-              .text(info.object.name+"  " + ((info.object.persons - info.object.persons2008)>0? "+":"")+ (info.object.persons - info.object.persons2008)+"명");
+              .text(((info.object.persons - info.object.persons2008)>0? "+":"")+ (info.object.persons - info.object.persons2008)+"명");
     textFeature.append("text")
               .attr("class", "number")
               .attr("dx", info.x)
@@ -870,16 +898,16 @@ function setVariables(currentZoom) {
 map.addControl(deckOverlay);
 
 window.addEventListener("keydown", (e) => {
-  //console.log(e);
-  if (e.key=='1') {
-    showLineChart = !showLineChart;
-  }
-  if (e.key=='2') {
-    labelVisibility = !labelVisibility;
+  // //console.log(e);
+  // if (e.key=='1') {
+  //   showLineChart = !showLineChart;
+  // }
+  // if (e.key=='2') {
+  //   labelVisibility = !labelVisibility;
 
 
-  }
-  if (e.key=='3') {
+  // }
+  if (e.key==' ') {
     mainMenu++;
     mainMenu = mainMenu%3; //0은 보통, 1은 2008년 2는 2023년  
     //console.log(mainMenu);
@@ -887,6 +915,15 @@ window.addEventListener("keydown", (e) => {
   update();
 });
 
+
+$('.toggleMap').on('click', function() {
+
+    mainMenu++;
+    mainMenu = mainMenu%3; //0은 보통, 1은 2008년 2는 2023년  
+    //console.log(mainMenu);
+    update();
+
+});
 
 const $rangeTime = $("#timeSlider");
 $rangeTime.ionRangeSlider();
