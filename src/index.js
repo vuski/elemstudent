@@ -98,6 +98,11 @@ const colorMinusLine = [6,90,100];//[12, 187, 207];//[220,60,20];
 const colorClosedLine = [40,40,40];//[30,15,7];
 
 const plotSize = 1000;
+
+
+const nodeMap = new Map();
+const nodeMapArr = new Array();
+
 (async function loadData() {
   const schoolRaw = await load(schoolInfo, CSVLoader, {
     csv : {
@@ -162,16 +167,26 @@ const plotSize = 1000;
       y : d.y
     };
     temp.push(datum);
+
+    //autoComplete 용
+    const datum0 = {
+      x: d.x,
+      y: d.y
+    };
+    nodeMap.set(d.name, datum0);
+    nodeMapArr.push(d.name);
   }
 
 
 
   schoolData = temp;
-  console.log(schoolData.filter(d=>d.persons<=10));
+  //console.log(schoolData.filter(d=>d.persons<=10));
   return schoolRaw;
 })().then( (schoolData) => {
   //console.log("여ㅛ기");
   update();
+  initAutoComplete();
+
 }); 
 
 
@@ -182,20 +197,34 @@ const update = () => {
 
   const layers =  [
 
-    // new GeoJsonLayer({
-    //   id: 'sgg-area',
-    //   data: sggName,
-    //   // Styles
-    //   stroked: true,
-    //   filled: false,
-    //   lineWidthMinPixels: 1,
-    //   opacity: 0.4,
-    //   pickable: true,
-    //   getLineColor: [60, 60, 60],
-    //   //getFillColor: [200, 100, 100],
-    //   visible : true
-    // }),
-
+    new GeoJsonLayer({
+      id: 'sgg-area',
+      data: './sgg.geojson',
+      // Styles
+      stroked: true,
+      filled: false,
+      lineWidthMinPixels: 1,
+      getLineWidth : 2,
+      opacity: 0.4,
+      pickable: false,
+      getLineColor: [60, 60, 60],
+      //getFillColor: [200, 100, 100],
+      visible : true
+    }),
+    new GeoJsonLayer({
+      id: 'sido-area',
+      data: './sido.geojson',
+      // Styles
+      stroked: true,
+      filled: false,
+      lineWidthMinPixels: 2,
+      getLineWidth : 3,
+      opacity: 0.4,
+      pickable: false,
+      getLineColor: [30, 30, 30],
+      //getFillColor: [200, 100, 100],
+      visible : true
+    }),
     
 
     new PolygonLayer({
@@ -703,7 +732,7 @@ const update = () => {
   });  
   
   
-  console.log(canvas1.width, canvas1.height);
+  //console.log(canvas1.width, canvas1.height);
   context1.clearRect(0, 0, canvas1.width, canvas1.height);
 
   context1.textBaseline = 'middle';
@@ -794,7 +823,7 @@ map.on('move', () => {
 map.addControl(deckOverlay);
 
 window.addEventListener("keydown", (e) => {
-  console.log(e);
+  //console.log(e);
   if (e.key=='1') {
     normalMode = !normalMode;
   }
@@ -816,7 +845,7 @@ window.addEventListener("keydown", (e) => {
   if (e.key=='3') {
     mainMenu++;
     mainMenu = mainMenu%3; //0은 보통, 1은 2008년 2는 2023년  
-    console.log(mainMenu);
+    //console.log(mainMenu);
   }
   update();
 });
@@ -879,3 +908,99 @@ document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", e
   showDiff = window.easyToggleState.isActive(event.target);
   update();
 }, false);
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////// 검색 창 ////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+function initAutoComplete() {
+
+  const defaultText = ' 학교 이름을 입력하세요';
+
+  $("#searchInput").on("focus", function() {
+    if ($(this).val() === defaultText) {
+      $(this).val("");
+      $(this).removeClass("default-text");
+    }
+  });
+
+  $("#searchInput").on("blur", function() {
+    if ($(this).val() === "") {
+      $(this).val(defaultText);
+      $(this).addClass("default-text");
+    }
+  });
+
+  $("#searchInput").autocomplete({  //오토 컴플릿트 시작
+    source : nodeMapArr,    // source 는 자동 완성 대상
+    select : function(event, ui) {    //아이템 선택시
+        //console.log("ui.item:",ui.item);
+      
+      console.log(ui.item.value);
+      const name = ui.item.value;
+      focusNode(name);
+      //$(this).attr("value","");
+    },
+    focus : function(event, ui) {    //포커스 가면
+        return false;//한글 에러 잡기용도로 사용됨
+    },
+    minLength: 1,// 최소 글자수
+    autoFocus: false, //첫번째 항목 자동 포커스 기본값 false
+    classes: {    //잘 모르겠음
+        "ui-autocomplete": "highlight"
+    },
+    delay: 500,    //검색창에 글자 써지고 나서 autocomplete 창 뜰 때 까지 딜레이 시간(ms)
+    //disabled: true, //자동완성 기능 끄기
+    position: { my : "left top", at: "left bottom" },    //잘 모르겠음
+    close : function(event){    //자동완성창 닫아질때 호출
+      //$(this).attr("value","");
+      //console.log(event);
+    }
+  }).autocomplete( "instance" )._renderItem = function( ul, item ) {    //요 부분이 UI를 마음대로 변경하는 부분
+    return $( "<li>" )    //기본 tag가 li로 되어 있음 
+    .append( "<div>" + item.value + "</div>" )    //여기에다가 원하는 모양의 HTML을 만들면 UI가 원하는 모양으로 변함.
+    .appendTo( ul );
+  };
+
+
+  $("#searchInput").keydown(function(event){
+    if(event.keyCode == 13) {
+      if($("#searchInput").val().length==0) {
+          event.preventDefault();
+          return false;
+      }
+      const name = event.target.value;
+      if (nodeMap.has(name)) {
+
+        focusNode(name);
+       
+      }
+      $(this).val("");
+    }
+  
+  });
+
+  $("#searchInput").val(defaultText);
+  $("#searchInput").addClass("default-text");
+
+}
+
+function focusNode(name) {
+
+  //console.log("focusNode!!:",d);
+
+  const value = nodeMap.get(name);
+
+  map.flyTo({
+    center: [value.x, value.y],
+    zoom: 14, // 원하는 줌 레벨
+    speed: 1, // 애니메이션 속도
+    curve: 1, // 애니메이션 곡선 형태
+    essential: true, // 애니메이션이 사용자 입력에 의해 중단되지 않도록 함
+  });
+
+
+
+}

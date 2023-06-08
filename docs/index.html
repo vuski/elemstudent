@@ -1,5 +1,78 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta property="og:title" content="2008-2023년 전국 초등학교 학생 수 증감"/><meta property="og:description" content=""/><meta property="og:image" content="https://raw.githubusercontent.com/vuski/jsExer/main/elemStudentShift/titleImage.jpg"/><script async src="https://www.googletagmanager.com/gtag/js?id=G-15SL5F4EGT"></script><script>window.dataLayer = window.dataLayer || [];
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta property="og:title"              content="2008-2023년 전국 초등학교 학생 수 증감" />
+    <meta property="og:description"        content="" />
+    <meta property="og:image"              content="https://raw.githubusercontent.com/vuski/jsExer/main/elemStudentShift/titleImage.jpg" />
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-15SL5F4EGT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-15SL5F4EGT');</script><title>2008-2023 전국 초등학교 학생 수 증감</title><style></style><meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="stylesheet" href="./ion.rangeSlider.min.css"/><script src="./jquery.min.js"></script><link href="./basic.css" rel="stylesheet"><link href="./mapbox-gl.css" rel="stylesheet"><script src="./easy-toggle-state.js"></script><link href="./switchbox.css" rel="stylesheet"><script src="./d3.v7.min.js"></script><script src="./proj4-src.js"></script><script defer="defer" src="main.js"></script></head><body><div id="container"></div><div id="bottomBar"><div class="showDiff"><button type="button" class="example-switchbox is-pressed" data-toggle-class="is-pressed" id="switchbox_showDiff" aria-pressed="true" title="Toggle this box"><span class="example-switchbox-yes">diff ON</span> <span class="example-switchbox-no">diff Off</span> <span class="sr-only">Toggle</span></button></div><div class="showText"><button type="button" class="example-switchbox" data-toggle-class="is-pressed" id="switchbox_showText" aria-pressed="true" title="Toggle this box"><span class="example-switchbox-yes">txt ON</span> <span class="example-switchbox-no">txt Off</span> <span class="sr-only">Toggle</span></button></div><div class="range-slider"><input id="timeSlider" name="timeThreshold" value=""/></div></div><canvas id="textCanvas"></canvas></body></html>
+  gtag('config', 'G-15SL5F4EGT');
+</script>
+    <title>2008-2023 전국 초등학교 학생 수 증감</title>
+    <!-- deck.gl standalone bundle -->
+    <!-- <script src="https://unpkg.com/deck.gl@8.7.0-beta.6/dist.min.js"></script>-->
+    <!-- <script src="https://unpkg.com/@loaders.gl/csv@2.3.13/dist/dist.min.js"></script>
+    <script src="./deck.gl-dist.min.js"></script>
+    <script src="./loders.gl-csv-dist.min.js"></script> -->
+    <!-- <script src="https://d3js.org/d3.v6.min.js"></script> -->
+    <style type="text/css">
+     
+    </style>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="./ion.rangeSlider.min.css"/>
+
+  <script src="./jquery.min.js"></script>
+  <link href="./basic.css" rel="stylesheet">
+  <link href="./mapbox-gl.css" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="./jquery-ui.css">
+  <link href="./switchbox.css" rel="stylesheet">
+
+  <script src="./easy-toggle-state.js"></script>
+  <script src="./jquery-ui.min.js"></script>
+  <script src="./d3.v7.min.js"></script>
+  <script src="./proj4-src.js"></script>
+
+<script defer src="main.js"></script></head>
+
+  <body>
+    <div id="container"></div>
+
+
+    <div id="header">
+      <input type="text" id="searchInput"/>
+    </div>
+    
+    <div id = "bottomBar">
+   
+      <div class="showDiff">
+        <button type="button" class="example-switchbox is-pressed" data-toggle-class="is-pressed" id="switchbox_showDiff" aria-pressed="true" title="Toggle this box">          
+          <span class="example-switchbox-yes">diff ON</span>
+          <span class="example-switchbox-no">diff Off</span>
+          <span class="sr-only">Toggle</span>
+        </button>
+      </div>   
+      <div class="showText">
+        <button type="button" class="example-switchbox" data-toggle-class="is-pressed" id="switchbox_showText" aria-pressed="true" title="Toggle this box">          
+          <span class="example-switchbox-yes">txt ON</span>
+          <span class="example-switchbox-no">txt Off</span>
+          <span class="sr-only">Toggle</span>
+        </button>
+      </div>   
+
+      <div class="range-slider">
+        <input type="text" id="timeSlider" name="timeThreshold" value="" />
+      </div> 
+    </div>
+    <canvas id="textCanvas"></canvas>
+  </body>
+
+
+
+  </script>
+</html>

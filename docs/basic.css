@@ -25,6 +25,19 @@ body {
     width: 100%;
 }
 
+#header {
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    background-color: rgba(0,0,0,0.8);
+    z-index: 20;
+    height: 55px;
+}
+
+
+.default-text {
+    color: #bbbbbb; /* 연한 회색 */
+}
 #bottomBar {
     position: absolute;
     width: 100%;
@@ -87,3 +100,33 @@ body {
     z-index : 30;
     pointer-events: none;
 }
+
+
+#searchInput { 
+    position: relative;
+    width : 260px;
+    height : 30px;
+    top: 10px;
+    left : 50%;
+    transform: translate(-50%, 0);
+    font-family: 'Pretendard-Regular';
+    font-size : 25px;
+    /* background-image: radial-gradient( rgb(20, 20, 20), rgb(63, 63, 63)); */
+    overflow: hidden;
+    border-radius: 15px;
+    z-index : 50;
+  }
+.ui-autocomplete {
+    max-height: 300px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+    /* add padding to account for vertical scrollbar */
+    padding-right: 20px;
+} 
+#ui-id-1 {
+    z-index :1999;
+    max-width: 260px;
+    font-family: 'Pretendard-Regular';
+    font-size : 15px;
+} 
