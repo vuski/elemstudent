@@ -43,7 +43,7 @@ const textFeature = svg.append("g");
 const w = window.innerWidth;
 let canvas1 = document.getElementById('textCanvas');
 canvas1.width = w;
-canvas1.height = w<800? 140 : 90;
+canvas1.height = 140;//w<800? 140 : 90;
 
 const context1 = canvas1.getContext("2d");
 
@@ -404,12 +404,18 @@ const update = () => {
       fontFamily: 'Petendard-Regular',
       // fontSettings: {},
       // fontWeight: 'normal',
-      getAlignmentBaseline: 'center',
+      getAlignmentBaseline: 'top',
       getAngle: 0,
       // getBackgroundColor: [255, 255, 255, 255],
       // getBorderColor: [0, 0, 0, 255],
       // getBorderWidth: 0,
-      getColor: [0, 0, 0, 255],
+      getColor: d=>{
+        const alpha = 255;
+        const diff = d.persons - d.persons2008;
+        if (d.persons==0) return  [...colorClosedLine, 255];
+        else if (diff>=0) return   [...colorPlusLine, alpha] ;
+        else return[...colorMinusLine,alpha];
+      },
       // getPixelOffset: [0, 0],
       getFilterValue: d => [d.persons],
       filterRange: [[countFrom, countTo]],
@@ -668,7 +674,10 @@ const update = () => {
         fontFamily: 'Petendard-Regular',
         // fontSettings: {},
         // fontWeight: 'normal',
-        getAlignmentBaseline: 'bottom',
+        getAlignmentBaseline: d=>{
+          if (mainMenu==0) return 'bottom';
+          else return 'bottom';
+        },
         getAngle: 0,
         // getBackgroundColor: [255, 255, 255, 255],
         // getBorderColor: [0, 0, 0, 255],
@@ -721,10 +730,11 @@ const update = () => {
           // This tells deck.gl to recalculate radius when `currentYear` changes
           getSize : [currentZoom],
           getPixelOffset :  [currentZoom],
+          getAlignmentBaseline:[mainMenu]
          
         },
         extensions: [new DataFilterExtension({filterSize: 1})],
-        visible : showLineChart&&showDiff &&(mainMenu==0) 
+        visible : showLineChart&&showDiff 
         // visible: true,
         // wrapLongitude: false,
       })
@@ -736,7 +746,10 @@ const update = () => {
     layers : layers
   });  
   
-  
+  let titleText = "";
+  if (mainMenu==0) titleText = "2008-2023년 초등학교별 학생 수 증감";
+  else if (mainMenu==1) titleText = "2008년 초등학교별 학생 수";
+  else if (mainMenu==2) titleText = "2023년 초등학교별 학생 수";
   //console.log(canvas1.width, canvas1.height);
   context1.clearRect(0, 0, canvas1.width, canvas1.height);
 
@@ -745,10 +758,10 @@ const update = () => {
   context1.textAlign = 'center';
   context1.fillStyle = 'white';
   context1.font = '12px Pretendard-Regular';
-  context1.fillText("데이터 : KESS교육통계서비스/학교알리미 | 색상 : 2008년 대비 증감",
+  context1.fillText("데이터 : KESS교육통계서비스/학교알리미"+(mainMenu==0?" | 색상 : 2008년 대비 증감":""),
    canvas1.width/2, 125);
   context1.font = '20px Pretendard-Regular';
-  context1.fillText("2008-2023년 전국 초등학교 학생 수 증감",
+  context1.fillText(titleText,
    canvas1.width/2, 100);
 
    context1.fillStyle = '#c0c0c0'; // 텍스트의 색상을 빨간색으로 지정
