@@ -480,12 +480,12 @@ const update = () => {
       //pickable: true,
       updateTriggers: {
         // This tells deck.gl to recalculate radius when `currentYear` changes
-        getSize : [mainMenu],
-        getText: [mainMenu],
+        getSize : [mainMenu, currentZoom],
+        getText: [mainMenu, currentZoom],
        
       },
       extensions: [new DataFilterExtension({filterSize: 1})],
-      visible :(mainMenu!=0)
+      visible :(mainMenu!=0)&&(currentZoom>10)
       // visible: true,
       // wrapLongitude: false,
     }),
