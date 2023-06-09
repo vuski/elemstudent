@@ -173,8 +173,11 @@ const nodeMapArr = new Array();
       x: d.x,
       y: d.y
     };
-    nodeMap.set(d.name, datum0);
-    nodeMapArr.push(d.name);
+    const label = d.name+"/"+d.sido+" "+d.gu;
+    nodeMap.set(label, datum0);
+    const nameShort = d.name.substring(0,d.name.indexOf("초등"));
+    //console.log(nameShort);
+    nodeMapArr.push({label :label, value: nameShort});
   }
 
 
@@ -862,7 +865,7 @@ function showInfoBox(info) {
 map.on('zoom', () => {
   textFeature.selectAll(".number").remove();
   currentZoom = map.getZoom();
-  console.log(currentZoom);
+  //console.log(currentZoom);
   setVariables(currentZoom);
   update();
 
@@ -874,7 +877,7 @@ map.on('move', () => {
 
 function setVariables(currentZoom) {
 
-  if (currentZoom>9) {
+  if (currentZoom>10) {
     showLineChart = true;
   } else {
     showLineChart = false;
@@ -1006,7 +1009,7 @@ document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", e
 
 function initAutoComplete() {
 
-  const defaultText = ' 학교 이름을 입력하세요';
+  const defaultText = " 학교 이름 앞 부분만 입력하세요";
 
   $("#searchInput").on("focus", function() {
     if ($(this).val() === defaultText) {
@@ -1023,13 +1026,19 @@ function initAutoComplete() {
   });
 
   $("#searchInput").autocomplete({  //오토 컴플릿트 시작
-    source : nodeMapArr,    // source 는 자동 완성 대상
+    source : function(request, response) {
+      var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+        var results = $.grep(nodeMapArr, function (item) {
+            return matcher.test(item.value);  // 검색어와 'value' 필드를 비교
+        });
+        response(results);
+    },
     select : function(event, ui) {    //아이템 선택시
         //console.log("ui.item:",ui.item);
-      
-      console.log(ui.item.value);
-      const name = ui.item.value;
-      focusNode(name);
+      //console.log(ui.item);
+      //console.log(ui.item.value);
+      //const name = ui.item.value;
+      focusNode(ui.item);
       //$(this).attr("value","");
     },
     focus : function(event, ui) {    //포커스 가면
@@ -1040,7 +1049,7 @@ function initAutoComplete() {
     classes: {    //잘 모르겠음
         "ui-autocomplete": "highlight"
     },
-    delay: 500,    //검색창에 글자 써지고 나서 autocomplete 창 뜰 때 까지 딜레이 시간(ms)
+    delay: 100,    //검색창에 글자 써지고 나서 autocomplete 창 뜰 때 까지 딜레이 시간(ms)
     //disabled: true, //자동완성 기능 끄기
     position: { my : "left top", at: "left bottom" },    //잘 모르겠음
     close : function(event){    //자동완성창 닫아질때 호출
@@ -1048,14 +1057,15 @@ function initAutoComplete() {
       //console.log(event);
     }
   }).autocomplete( "instance" )._renderItem = function( ul, item ) {    //요 부분이 UI를 마음대로 변경하는 부분
+    //const gu = "/"+nodeMap.get(item.value).gu;
     return $( "<li>" )    //기본 tag가 li로 되어 있음 
-    .append( "<div>" + item.value + "</div>" )    //여기에다가 원하는 모양의 HTML을 만들면 UI가 원하는 모양으로 변함.
+    .append( "<div>" + item.label + "</div>" )    //여기에다가 원하는 모양의 HTML을 만들면 UI가 원하는 모양으로 변함.
     .appendTo( ul );
   };
 
 
-  $("#searchInput").keydown(function(event){
-    if(event.keyCode == 13) {
+  $("#searchInput").on('keydown',function(event){
+    if(event.key== "Enter") {
       if($("#searchInput").val().length==0) {
           event.preventDefault();
           return false;
@@ -1076,15 +1086,15 @@ function initAutoComplete() {
 
 }
 
-function focusNode(name) {
+function focusNode(item) {
 
   //console.log("focusNode!!:",d);
 
-  const value = nodeMap.get(name);
+  const value = nodeMap.get(item.label);
 
   map.flyTo({
     center: [value.x, value.y],
-    zoom: 14, // 원하는 줌 레벨
+    zoom: 14.3, // 원하는 줌 레벨
     speed: 1, // 애니메이션 속도
     curve: 1, // 애니메이션 곡선 형태
     essential: true, // 애니메이션이 사용자 입력에 의해 중단되지 않도록 함
