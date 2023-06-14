@@ -10,7 +10,7 @@ import {TileLayer} from '@deck.gl/geo-layers';
 import {load} from '@loaders.gl/core';
 import {MapboxOverlay} from '@deck.gl/mapbox';
 //const {JSONLoader, load} = json; 
-
+      
 import ionRangeSlider from 'ion-rangeslider';
 
 import mapboxgl from 'mapbox-gl';
@@ -395,8 +395,13 @@ const update = () => {
       autoHighlight: true,
       radiusUnits: 'meters',
       getFillColor: d => {  
+        if (mainMenu==1) {
+          return [181, 219, 64, 200];   
+          
+        } else {
+          return [118, 171, 44, 200];    
+        }
         
-          return [...colorMinus,200];
          
        
       },
@@ -433,6 +438,7 @@ const update = () => {
       // getBorderWidth: 0,
       getColor: d=>{
         const alpha = 255;
+        return [20,20,20,alpha];
         const diff = d.persons - d.persons2008;
         if (d.persons==0) return  [...colorClosedLine, 255];
         else if (diff>=0) return   [...colorPlusLine, alpha] ;
@@ -779,12 +785,15 @@ const update = () => {
   context1.textBaseline = 'middle';
   context1.textAlign = 'center';
   context1.fillStyle = 'white';
+
+  context1.font = '12px Pretendard-Regular';
+  context1.fillText("지도 제작 : VWL Inc.", canvas1.width/2, 125);
+
   context1.font = '12px Pretendard-Regular';
   context1.fillText("데이터 : KESS교육통계서비스/학교알리미"+(mainMenu==0?" | 색상 : 2008년 대비 증감":""),
-   canvas1.width/2, 125);
+   canvas1.width/2, 110);
   context1.font = '20px Pretendard-Regular';
-  context1.fillText(titleText,
-   canvas1.width/2, 100);
+  context1.fillText(titleText, canvas1.width/2, 90);
 
    context1.fillStyle = '#c0c0c0'; // 텍스트의 색상을 빨간색으로 지정
    context1.font = '12px Pretendard-Regular';   
@@ -918,15 +927,6 @@ window.addEventListener("keydown", (e) => {
   update();
 });
 
-
-$('.toggleMap').on('click', function() {
-
-    mainMenu++;
-    mainMenu = mainMenu%3; //0은 보통, 1은 2008년 2는 2023년  
-    //console.log(mainMenu);
-    update();
-
-});
 
 const $rangeTime = $("#timeSlider");
 $rangeTime.ionRangeSlider();
@@ -1103,3 +1103,56 @@ function focusNode(item) {
 
 
 }
+
+const modal = document.getElementById("infoModal");
+const btn = document.querySelector(".showInform");
+const modalContent = document.querySelector(".modal-content");
+
+
+$("#infoModal").css("display", "block");
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+  setTimeout(function(){ modal.style.opacity = 1; }, 50);
+}
+
+// When the user clicks anywhere in the modal content, close the modal
+modalContent.onclick = function() {
+  modal.style.opacity = 0;
+  setTimeout(function(){ modal.style.display = "none"; }, 500);
+}
+
+// When the user clicks anywhere outside of the modal content, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.opacity = 0;
+    setTimeout(function(){ modal.style.display = "none"; }, 500);
+  }
+}
+
+
+const messages = [
+  "2008-2023년 학생 수 증감 지도",
+  "2008년 학생 수 지도",
+  "2023년 학생 수 지도"
+
+];
+
+
+$('.toggleMap').on('click', function() {
+
+  mainMenu++;
+  mainMenu = mainMenu%3; //0은 보통, 1은 2008년 2는 2023년  
+  //console.log(mainMenu);
+  $('.tooltip').text(messages[mainMenu]);
+      $('.tooltip').css('visibility', 'visible').css('opacity', '1');
+      setTimeout(function(){
+          $('.tooltip').css('visibility', 'hidden').css('opacity', '0');
+      }, 2000); // Tooltip will disappear after 2 seconds.
+
+  update();
+
+});
+
+
