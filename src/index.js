@@ -72,10 +72,10 @@ function initMap(map) {
     //     map.setFog({}); // Set the default atmosphere style
     const layers = map.getStyle().layers;
     
-    console.log()
+    //console.log()
       //시도경계선 없애기
     for (let i = 0; i < layers.length; i++) {
-      console.log(layers[i].id);
+      //console.log(layers[i].id);
         if (layers[i].id ===  'admin-0-boundary' || layers[i].id ===  'admin-1-boundary') {
           map.setLayoutProperty(layers[i].id, 'visibility', 'none');
         }
