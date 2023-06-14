@@ -69,15 +69,18 @@ function initMap(map) {
     },
   ));
   map.on('style.load', () => {
-  //     map.setFog({}); // Set the default atmosphere style
-  const layers = map.getStyle().layers;
- 
-    //시도경계선 없애기
-  for (let i = 0; i < layers.length; i++) {
-      if (layers[i].type === 'line') {
-        map.setLayoutProperty(layers[i].id, 'visibility', 'none');
-      }
-  }
+    //     map.setFog({}); // Set the default atmosphere style
+    const layers = map.getStyle().layers;
+    
+    console.log()
+      //시도경계선 없애기
+    for (let i = 0; i < layers.length; i++) {
+      console.log(layers[i].id);
+        if (layers[i].id ===  'admin-0-boundary' || layers[i].id ===  'admin-1-boundary') {
+          map.setLayoutProperty(layers[i].id, 'visibility', 'none');
+        }
+    }
+   
   });
 
 
