@@ -258,7 +258,7 @@ background-color: #5f56c9;
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
+    overflow: hidden; /* Enable scroll if needed */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
@@ -272,6 +272,7 @@ background-color: #5f56c9;
     border-radius: 20px;
 
     opacity: 1.0;
+ 
 }   
 
 /* Close Button */
@@ -302,7 +303,7 @@ background-color: #5f56c9;
 
 .regular {
     font-family: 'Pretendard-Regular';
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.5; /* 행간격 조정 */
 }
 
