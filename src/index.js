@@ -68,9 +68,19 @@ function initMap(map) {
       defaultLanguage: 'ko'    
     },
   ));
-// map.on('style.load', () => {
-//     map.setFog({}); // Set the default atmosphere style
-// });
+  map.on('style.load', () => {
+  //     map.setFog({}); // Set the default atmosphere style
+  const layers = map.getStyle().layers;
+ 
+    //시도경계선 없애기
+  for (let i = 0; i < layers.length; i++) {
+      if (layers[i].type === 'line') {
+        map.setLayoutProperty(layers[i].id, 'visibility', 'none');
+      }
+  }
+  });
+
+
 }
 
 const deckOverlay =  new MapboxOverlay({
@@ -979,15 +989,15 @@ window.addEventListener('resize', function() {
 document.querySelector("#switchbox_showDiff").addEventListener("toggleBefore", event => {
   labelVisibility = window.easyToggleState.isActive(event.target);
   const lv = labelVisibility? 'visible' : 'none';    
-  var layers = map.getStyle().layers;
+  const layers = map.getStyle().layers;
 
-    for (var i = 0; i < layers.length; i++) {
-        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
-            // 텍스트 레이블을 담당하는 레이어를 찾았습니다.
-            // 이 레이어를 제거하거나 숨깁니다.
-            map.setLayoutProperty(layers[i].id, 'visibility', lv);
-        }
-    }
+  for (let i = 0; i < layers.length; i++) {
+      if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+          // 텍스트 레이블을 담당하는 레이어를 찾았습니다.
+          // 이 레이어를 제거하거나 숨깁니다.
+          map.setLayoutProperty(layers[i].id, 'visibility', lv);
+      }
+  }
   
 
   update();
@@ -1027,8 +1037,8 @@ function initAutoComplete() {
 
   $("#searchInput").autocomplete({  //오토 컴플릿트 시작
     source : function(request, response) {
-      var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-        var results = $.grep(nodeMapArr, function (item) {
+      const matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+        const results = $.grep(nodeMapArr, function (item) {
             return matcher.test(item.value);  // 검색어와 'value' 필드를 비교
         });
         response(results);
