@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where gh:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --with-token)",
+      "Bash(npm audit:*)",
+      "Bash(npm config set:*)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
