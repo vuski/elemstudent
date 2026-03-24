@@ -26,5 +26,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "overrides": {
+    "fast-xml-parser": "^5.5.6"
+  }
 }
