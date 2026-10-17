@@ -30,13 +30,14 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 
 import ionRangeSlider from "ion-rangeslider";
 
-import mapboxgl from "mapbox-gl";
-import MapboxLanguage from "@mapbox/mapbox-gl-language";
+import * as maplibregl from "maplibre-gl";
 
 TextLayer.fontAtlasCacheLimit = 10;
 
-mapboxgl.accessToken =
-  "pk.eyJ1Ijoic2JraW00MjciLCJhIjoiY2o4b3Q0aXd1MDdyMjMzbnRxYTdvdDZrbCJ9.GCHi6-mDGEkd3F-knzSfRQ";
+// webpack 번들 안에서는 MapLibre 가 워커 파일 위치를 못 찾으므로 직접 지정한다.
+// (npm run build 때 scripts/copy-maplibre.js 가 docs/ 로 복사함)
+maplibregl.setWorkerUrl("./maplibre-gl-worker.js");
+
 let labelVisibility = true;
 let currentZoom = 6;
 const map = createMap("container");
@@ -70,10 +71,9 @@ const context1 = canvas1.getContext("2d");
 // const context2 = canvas2.getContext("2d");
 
 function createMap(containerID) {
-  return new mapboxgl.Map({
+  return new maplibregl.Map({
     container: containerID, // container ID
-    //style: 'mapbox://styles/mapbox/streets-v11', // style URL
-    style: "mapbox://styles/sbkim427/cl6ool43r003o14kwmd8ogdwc",
+    style: "https://tiles.openfreemap.org/styles/positron", // OpenFreeMap (무료, 키 불필요)
     center: [127.6, 35.7], // starting position [lng, lat]
     zoom: 6, // starting zoom
     //projection: 'globe' // display the map as a 3D globe
@@ -83,24 +83,27 @@ function createMap(containerID) {
 function initMap(map) {
   map.dragRotate.disable();
   map.touchZoomRotate.disableRotation();
-  map.addControl(
-    new MapboxLanguage({
-      defaultLanguage: "ko",
-    })
-  );
   map.on("style.load", () => {
-    //     map.setFog({}); // Set the default atmosphere style
     const layers = map.getStyle().layers;
 
-    //console.log()
-    //시도경계선 없애기
     for (let i = 0; i < layers.length; i++) {
-      //console.log(layers[i].id);
-      if (
-        layers[i].id === "admin-0-boundary" ||
-        layers[i].id === "admin-1-boundary"
-      ) {
+      //국가·시도 경계선 없애기 (positron 의 boundary_2, boundary_3)
+      if (layers[i].id === "boundary_2" || layers[i].id === "boundary_3") {
         map.setLayoutProperty(layers[i].id, "visibility", "none");
+      }
+      //지명을 한국어로 (positron 기본은 "영문 + 현지어" 두 줄). 도로 번호(ref)는 그대로 둔다.
+      const textField = layers[i].layout && layers[i].layout["text-field"];
+      if (
+        layers[i].type === "symbol" &&
+        textField &&
+        JSON.stringify(textField).includes("name")
+      ) {
+        map.setLayoutProperty(layers[i].id, "text-field", [
+          "coalesce",
+          ["get", "name:ko"],
+          ["get", "name:nonlatin"],
+          ["get", "name"],
+        ]);
       }
     }
   });
