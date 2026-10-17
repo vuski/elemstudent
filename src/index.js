@@ -1,14 +1,14 @@
 // 변경해야 하는 변수들
-const schoolInfo = "./schoolInfo_2024.tsv";
-const countMax = 2192;
-const yearCount = 17;
+const schoolInfo = "./schoolInfo_2026.tsv";
+const countMax = 2168;
+const yearCount = 19;
 let countFrom = 0;
 let countTo = countMax;
-let filteredCount = 7015;
-const lastYear = "2024";
-const COL_OFFSET = 24;
+let filteredCount = 7081;
+const lastYear = "2026";
+const COL_OFFSET = 26;
 ////////////////////////////////////
-// 그 밖에도 class_2024 및 student_2024 를 변경해야 함
+// 그 밖에도 class_2026 및 student_2026 를 변경해야 함
 
 import { Deck } from "@deck.gl/core";
 import {
@@ -185,9 +185,9 @@ const nodeMapArr = new Array();
       name: d.name,
       polygon: polygon,
       cls2008: d.class_2008,
-      clsLast: d.class_2024,
+      clsLast: d.class_2026,
       persons2008: d.student_2008,
-      persons: d.student_2024,
+      persons: d.student_2026,
       x: d.x,
       y: d.y,
     };
@@ -531,7 +531,7 @@ const update = () => {
       // getPixelOffset: [0, 0],
       getFilterValue: (d) => [d.persons],
       filterRange: [[countFrom, countTo]],
-      getPosition: (d) => d.polygon[16],
+      getPosition: (d) => d.polygon[yearCount],
       getSize: (d) =>
         ((((currentZoom * currentZoom) / 100) * 1) / Math.pow(500, 0.35)) * 90,
       getText: (d) => "" + d.persons,
