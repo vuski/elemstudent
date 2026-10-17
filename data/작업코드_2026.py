@@ -6,6 +6,7 @@
   11_2026년도_학교 현황(초).csv       학교알리미
   12_2026년도_학교기본정보(초).csv    학교알리미 (신설 학교의 주소·좌표)
   13_신설학교_좌표보정.tsv           기본정보에 좌표가 없는 학교를 네이버 지오코딩으로 채운 값
+  16_학교이전이력.json               같은 학교 코드로 새 부지에 옮겨 간 학교의 이전 연도·옛/새 위치·근거
 
 출력
   14_분류결과_2025-2026.tsv          신설 / 재개교 / 폐교(휴교 포함) 학교 목록
@@ -19,10 +20,14 @@
   - 재건축으로 쉬었다가 같은 자리에서 다시 연 학교는 기존 폐교 행(id=NONE)에 코드를 붙여 기록을 잇는다.
   - 그 밖의 새 코드는 신설 학교로 추가하고 2008-2024년 값은 0으로 둔다.
     시도·시군구는 기존 표기(시도 약칭, 시 단위)로 맞춘다.
+  - 예외: 좌표가 틀린 것으로 확인된 학교(COORD_FIX)는 2026년 기본정보 좌표로 고친다.
+  - 같은 코드로 다른 자리에 옮겨 간 학교(16번 파일)는 옛 자리 행(id=NONE, 이전 연도부터 0)과
+    새 자리 행(이전 연도 전까지 0)으로 나눈다.
 
 실행: python data\\작업코드_2026.py
 """
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -44,6 +49,19 @@ REOPENED = {
     ("서울", "강동구", "서울둔촌초등학교"): "S010000912",
     ("서울", "강동구", "서울위례초등학교"): "S010000940",
 }
+
+# 기존 좌표가 학교가 아닌 곳에 찍혀 있던 학교. 2026년 기본정보 좌표로 바꾼다(위성영상으로 확인).
+# 값은 바꿀 주소이고, None이면 주소는 그대로 둔다.
+COORD_FIX = {
+    "S040002134": None,  # 인천이음초: 2023년 학교알리미 좌표가 김포시 풍무동에 찍혀 있었다.
+    # 아래 셋은 주소가 시군구까지만 있어서 지오코딩이 다른 건물을 찍었다.
+    "S040002308": "인천광역시 서구 청라한울로 44",  # 인천청호초 (상가 건물)
+    "S130002725": "전라북도 전주시 완산구 마전들로 30",  # 전주홍산초 (2km 떨어진 다른 학교)
+    "S140005419": "전라남도 여수시 웅천중앙로 61",  # 웅천초 (여수시청)
+}
+
+# 같은 학교 코드로 새 부지에 옮겨 간 학교 (이전 연도, 옛·새 주소와 좌표, 근거)
+RELOCATED = {r["id"]: r for r in json.loads((D / "16_학교이전이력.json").read_text(encoding="utf-8"))}
 
 SIDO_ABBR = {
     "서울특별시": "서울", "부산광역시": "부산", "대구광역시": "대구", "인천광역시": "인천",
@@ -144,12 +162,40 @@ def main() -> None:
         for c in (f"class_{yr}", f"student_{yr}"):
             merged[c] = merged[c].fillna(0).astype(int).astype(str)
 
+    # 4. 좌표 보정과 이전 학교 분리 (좌표는 2026년 기본정보 값)
+    def official_xy(sid: str) -> list[str]:
+        return [f"{float(info.loc[sid, '경도']):.7f}", f"{float(info.loc[sid, '위도']):.7f}"]
+
+    for sid, addr in COORD_FIX.items():
+        mask = merged["id"] == sid
+        assert mask.sum() == 1, f"좌표 보정 대상을 찾지 못함: {sid}"
+        merged.loc[mask, ["x", "y"]] = official_xy(sid)
+        if addr:
+            merged.loc[mask, "addr"] = addr
+
+    old_sites = []
+    for sid, rec in RELOCATED.items():
+        year, new = rec["first_year_at_new_site"], rec["new"]
+        mask = merged["id"] == sid
+        assert mask.sum() == 1, f"이전 학교를 찾지 못함: {sid}"
+        assert merged.loc[mask, "addr"].item() == rec["old"]["addr"], f"옛 주소 불일치: {sid}"
+        old = merged[mask].copy()
+        old["id"] = "NONE"
+        old.index = old.index - 0.5  # 검색 목록에서 새 자리 행이 뒤에 오도록 바로 앞에 둔다.
+        before = [f"{k}_{yr}" for yr in ALL_YEARS if yr < year for k in ("class", "student")]
+        after = [f"{k}_{yr}" for yr in ALL_YEARS if yr >= year for k in ("class", "student")]
+        old[after] = "0"
+        merged.loc[mask, before] = "0"
+        merged.loc[mask, ["addr", "x", "y"]] = [new["addr"], f"{new['x']:.7f}", f"{new['y']:.7f}"]
+        old_sites.append(old)
+    merged = pd.concat([merged, *old_sites]).sort_index().reset_index(drop=True)
+
     cols = (["id", "name", "sido", "gu", "addr", "x", "y"]
             + [f"class_{y}" for y in ALL_YEARS] + [f"student_{y}" for y in ALL_YEARS])
     merged = merged[cols]
 
-    # 4. 검증
-    assert len(merged) == n_base + len(new_df)
+    # 5. 검증
+    assert len(merged) == n_base + len(new_df) + len(RELOCATED)
     assert not merged.isna().any().any(), "빈 값이 있음"
     lon, lat = merged["x"].astype(float), merged["y"].astype(float)
     assert lon.between(124, 132).all() and lat.between(33, 39).all(), "좌표가 한국 범위를 벗어남"
@@ -158,11 +204,17 @@ def main() -> None:
         assert not missing, f"{yr}: 결과에 빠진 학교 {missing}"
         assert merged[f"student_{yr}"].astype(int).sum() == status[yr][f"student_{yr}"].sum(), f"{yr}: 학생 수 합계 불일치"
 
-    # 5. 분류 결과
+    # 6. 분류 결과
     s24, s25, s26 = (merged[f"student_{y}"].astype(int) for y in (2024, 2025, 2026))
     kind = pd.Series("", index=merged.index)
     kind[merged["id"].isin(new_df["id"])] = "신설"
     kind[merged["id"].isin(REOPENED.values())] = "재개교(기록 연결)"
+    kind[merged["id"].isin(COORD_FIX)] = "좌표 보정"
+    kind[merged["id"].isin(RELOCATED)] = "이전(새 자리)"
+    old_keys = {(n, a) for old in old_sites for n, a in zip(old["name"], old["addr"])}
+    is_old_site = (merged["id"] == "NONE") & pd.Series(
+        [k in old_keys for k in zip(merged["name"], merged["addr"])], index=merged.index)
+    kind[is_old_site] = "이전(옛 자리)"
     kind[(kind == "") & (s24 > 0) & (s25 == 0)] = "2025년 폐교·휴교"
     kind[(kind == "") & (s25 > 0) & (s26 == 0)] = "2026년 폐교·휴교"
     report = merged.loc[kind != "", ["id", "name", "sido", "gu", "addr"]].assign(

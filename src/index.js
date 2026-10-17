@@ -4,7 +4,7 @@ const countMax = 2168;
 const yearCount = 19;
 let countFrom = 0;
 let countTo = countMax;
-let filteredCount = 7081;
+let filteredCount = 7083;
 const lastYear = "2026";
 const COL_OFFSET = 26;
 ////////////////////////////////////
