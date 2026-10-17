@@ -164,11 +164,13 @@ const nodeMapArr = new Array();
     base[0] -= dx * (yearCount / 2); //중심점 가운데로 이동
 
     const polygon = new Array();
+    const students = new Array(); //툴팁 막대 그래프용 연도별 학생 수
     polygon.push(base);
     let j, idx, count, xy;
     for (j = 0; j < yearCount; j++) {
       idx = j + COL_OFFSET;
       count = columns[idx][i];
+      students.push(count);
       xy = [base[0] + j * dx, base[1] + count * yScale];
       //console.log(xy);
       polygon.push(xy);
@@ -191,6 +193,7 @@ const nodeMapArr = new Array();
       clsLast: d.class_2026,
       persons2008: d.student_2008,
       persons: d.student_2026,
+      students: students,
       x: d.x,
       y: d.y,
     };
@@ -821,25 +824,38 @@ const update = () => {
   );
 };
 
+const INFO_TEXT_H = 155; //정보 상자의 글자 부분 높이
+const INFO_CHART_H = 150; //그 아래 막대 그래프 부분 높이
+
 function showInfoBox(info) {
   if (info.object) {
     //console.log(info.object.name);
     //console.log(info);
     textFeature.selectAll(".number").remove();
+
+    //상자 위치: 기본은 마우스 위쪽. 화면 위쪽 끝에서는 마우스 아래쪽으로, 좌우는 화면 안으로.
+    const boxW = Math.min(400, window.innerWidth - 16);
+    const boxH = INFO_TEXT_H + INFO_CHART_H;
+    let by = info.y - 20 - boxH;
+    if (by < 60) by = info.y + 20;
+    by = Math.max(60, Math.min(by, window.innerHeight - boxH - 8));
+    const bx = Math.max(8, Math.min(info.x - boxW / 2, window.innerWidth - boxW - 8));
+    const cx = bx + boxW / 2;
+
     textFeature
       .append("rect")
       .attr("class", "number")
-      .attr("x", info.x - 200)
-      .attr("y", info.y - 175)
-      .attr("width", 400)
-      .attr("height", 155)
+      .attr("x", bx)
+      .attr("y", by)
+      .attr("width", boxW)
+      .attr("height", boxH)
       .style("fill", "black")
       .style("opacity", 0.8);
     textFeature
       .append("text")
       .attr("class", "number")
-      .attr("dx", info.x)
-      .attr("dy", info.y - 139)
+      .attr("dx", cx)
+      .attr("dy", by + 36)
       .style("fill", "white")
       .attr("text-anchor", "middle")
       .style("font-size", 30)
@@ -848,8 +864,8 @@ function showInfoBox(info) {
     textFeature
       .append("text")
       .attr("class", "number")
-      .attr("dx", info.x)
-      .attr("dy", info.y - 105)
+      .attr("dx", cx)
+      .attr("dy", by + 70)
       .style("fill", "white")
       .attr("text-anchor", "middle")
       .style("font-size", 30)
@@ -862,8 +878,8 @@ function showInfoBox(info) {
     textFeature
       .append("text")
       .attr("class", "number")
-      .attr("dx", info.x)
-      .attr("dy", info.y - 80)
+      .attr("dx", cx)
+      .attr("dy", by + 95)
       .style("fill", "white")
       .attr("text-anchor", "middle")
       .style("font-size", 20)
@@ -880,8 +896,8 @@ function showInfoBox(info) {
     textFeature
       .append("text")
       .attr("class", "number")
-      .attr("dx", info.x)
-      .attr("dy", info.y - 55)
+      .attr("dx", cx)
+      .attr("dy", by + 120)
       .style("fill", "white")
       .attr("text-anchor", "middle")
       .style("font-size", 16)
@@ -899,16 +915,78 @@ function showInfoBox(info) {
     textFeature
       .append("text")
       .attr("class", "number")
-      .attr("dx", info.x)
-      .attr("dy", info.y - 30)
+      .attr("dx", cx)
+      .attr("dy", by + 145)
       .style("fill", "white")
       .attr("text-anchor", "middle")
       .style("font-size", 15)
       .style("opacity", 1)
       .text(info.object.addr);
+
+    drawStudentBars(info.object, bx, by + INFO_TEXT_H, boxW, INFO_CHART_H);
   } else {
     textFeature.selectAll(".number").remove();
   }
+}
+
+//정보 상자 아래쪽에 연도별 학생 수 막대 그래프를 그린다.
+//세로 축척은 학교마다 자기 최댓값에 맞추고, 수치는 반시계 90도 돌려 막대 위에 쓴다.
+function drawStudentBars(school, x0, y0, width, height) {
+  const padX = 16;
+  const labelRoom = 34; //막대 위 세로 수치가 들어갈 자리
+  const yearRoom = 22; //막대 아래 연도 자리
+  const baseline = y0 + height - yearRoom;
+  const maxBarH = height - labelRoom - yearRoom;
+  const slot = (width - padX * 2) / yearCount;
+  const barW = Math.max(4, slot * 0.7);
+  const maxValue = Math.max(1, ...school.students);
+
+  const diff = school.persons - school.persons2008;
+  const color =
+    school.persons == 0
+      ? "rgb(150,150,150)" //폐교·휴교. 지도의 회색은 검은 바탕에서 잘 안 보여 밝게 쓴다.
+      : `rgb(${(diff >= 0 ? colorPlus : colorMinus).join(",")})`;
+
+  const g = textFeature.append("g").attr("class", "number");
+  school.students.forEach((value, j) => {
+    const cx = x0 + padX + slot * j + slot / 2;
+    const h = (value / maxValue) * maxBarH;
+    if (h > 0) {
+      g.append("path")
+        .attr("d", roundedTopBar(cx - barW / 2, baseline - h, barW, h, 4))
+        .style("fill", color);
+    }
+    g.append("text")
+      .attr("transform", `translate(${cx},${baseline - h - 4}) rotate(-90)`)
+      .attr("text-anchor", "start")
+      .attr("dominant-baseline", "central")
+      .style("fill", "white")
+      .style("font-size", 11)
+      .text(value);
+    g.append("text")
+      .attr("x", cx)
+      .attr("y", baseline + 15)
+      .attr("text-anchor", "middle")
+      .style("fill", "#bbbbbb")
+      .style("font-size", 10)
+      .text(String(2008 + j).slice(2));
+  });
+  g.append("line")
+    .attr("x1", x0 + padX)
+    .attr("x2", x0 + width - padX)
+    .attr("y1", baseline + 0.5)
+    .attr("y2", baseline + 0.5)
+    .style("stroke", "#777777")
+    .style("stroke-width", 1);
+}
+
+//윗변 양쪽 모서리만 둥근 막대 (SVG path)
+function roundedTopBar(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h);
+  return (
+    `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}` +
+    `H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`
+  );
 }
 
 map.on("zoom", () => {
